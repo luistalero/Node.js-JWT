@@ -1,4 +1,25 @@
+<!-- protected.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Área Protegida</title>
+</head>
+<body>
+    <h1>Bienvenido, <%= user.username %></h1>
+    <p>Tu rol es: <%= user.role %></p>
+    
+    <% if (user.role === 'admin') { %>
+        <a href="admin.ejs">Panel de Administración</a>
+    <% } %>
+    
+    <% if (['admin', 'manager'].includes(user.role)) { %>
+        <a href="/reports">Reportes</a>
+    <% } %>
+        <button id="session">Volver</button>
+</body>
 </html>
+
+<!-- </html>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,7 +49,8 @@
         h2 {
             font-size: 1.5rem;
             margin-bottom: 20px;
-        }
+    }-->
+    <style>
         button {
             width: 50%;
             padding: 10px;
@@ -43,14 +65,14 @@
             background-color: #218838;
         }
     </style>
-</head>
+<!--</head>
 
 <body>
 
     <h1>Hola <%= username %>!</h1>
     <h2>Este contenido está protegido</h2>
     <button id="session">Volver</button>
-
+-->
     <script>
         const $ = el => document.querySelector(el)
 
@@ -70,7 +92,7 @@
             })
         })
     </script>
-
+<!--
 </body>
 
-</html>
+</html> -->
