@@ -65,6 +65,43 @@
         button:hover {
             background-color: #218838;
         }
+        .form-container h2 {
+            color: #333;
+        }
+
+        .form-container p {
+            text-align: center;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .form-container button {
+            margin-top: 10px;
+        }
+
+        .form-container:first-of-type {
+            text-align: center;
+            background-color: #e9f7ef;
+            border: 1px solid #d4edda;
+        }
+
+        .form-container:first-of-type h2 {
+            color: #155724;
+        }
+
+        .form-container:first-of-type p {
+            color: #155724;
+        }
+
+        .form-container:first-of-type button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .form-container:first-of-type button:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -76,8 +113,14 @@
                 <button id="close-session">Cerrar sesión</button>
             </div>
         <% } %>
+        <% if (typeof username === 'undefined') { %>
+            <div class="form-container">
+            <h2>Bienvenido</h2>
+            <p>¿Qué deseas hacer?</p>
+            <button onclick="showLogin()">Iniciar Sesión</button>
+            <button onclick="showRegister()">Registrarse</button>
+            </div>
 
-            <% if (typeof username === 'undefined') { %>
             <div class="form-container">
                 <form id="login-form">
                     <h2>Login</h2>
@@ -135,7 +178,7 @@
             })
               .then(res => {
                 if (res.ok) {
-                    loginSpan.innnerText = 'Sesión iniciada.... Entrando...'
+                    loginSpan.innerText = 'Sesión iniciada.... Entrando...'
                     loginSpan.style.color = 'green'
                     setTimeout(() => {
                         window.location.href = '/protected'
@@ -171,7 +214,7 @@
                     registerSpan.innerText = 'Usuario registrado correctamente'
                     registerSpan.style.color = 'green'
                     setTimeout(() => {
-                        window.location.href = '/protected'
+                        window.location.href = '/'
                     }, 2000)
                 } else {
                     registerSpan.innerText = 'Error al registrar el usuario'
@@ -193,6 +236,20 @@
                 window.location.href = '/'
             })
         })
+
+        function showLogin() {
+            document.querySelector('#login-form').parentElement.style.display = 'block';
+            document.querySelector('#register-form').parentElement.style.display = 'none';
+        }
+
+        function showRegister() {
+            document.querySelector('#register-form').parentElement.style.display = 'block';
+            document.querySelector('#login-form').parentElement.style.display = 'none';
+        }
+
+            // Hide forms initially
+        document.querySelector('#login-form').parentElement.style.display = 'none';
+        document.querySelector('#register-form').parentElement.style.display = 'none';
     </script>
 </body>
 </html>

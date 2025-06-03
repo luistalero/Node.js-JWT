@@ -54,15 +54,15 @@ app.post('/login', async (req, res) => {
 
 app.post('/register', async (req, res) => {
   const { username, password } = req.body
-  console.log(req.body)
 
   try {
     const id = await UserRepository.create({ username, password })
-    res.send({ id })
+    res.send({ id, message: 'User registered successfully' })
   } catch (error) {
     res.status(400).send(error.message)
   }
 })
+
 app.post('/logout', (req, res) => {
   res
     .clearCookie('access_token')
