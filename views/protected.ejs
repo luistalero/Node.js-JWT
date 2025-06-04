@@ -1,98 +1,68 @@
-<!-- protected.ejs -->
 <!DOCTYPE html>
 <html>
 <head>
     <title>Área Protegida</title>
-</head>
-<body>
-    <h1>Bienvenido, <%= user.username %></h1>
-    <p>Tu rol es: <%= user.role %></p>
-    
-    <% if (user.role === 'admin') { %>
-        <a href="admin.ejs">Panel de Administración</a>
-    <% } %>
-    
-    <% if (['admin', 'manager'].includes(user.role)) { %>
-        <a href="/reports">Reportes</a>
-    <% } %>
-        <button id="session">Volver</button>
-</body>
-</html>
-
-<!-- </html>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protected</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-            color: #343a40;
+            text-align: center;
+            padding: 20px;
+        }
+        .button-container {
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            height: 100vh;
+            gap: 20px;
+            margin-top: 30px;
         }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        h2 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-    }-->
-    <style>
         button {
-            width: 50%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
         }
-        button:hover {
-            background-color: #218838;
+        .admin-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .admin-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .user-btn {
+            background-color: #007bff;
+            color: white;
         }
     </style>
-<!--</head>
-
+</head>
 <body>
+    <h1>Bienvenido, <%= username %></h1>
+    <p>Tu rol es: <strong><%= role %></strong></p>
 
-    <h1>Hola <%= username %>!</h1>
-    <h2>Este contenido está protegido</h2>
-    <button id="session">Volver</button>
--->
-    <script>
-        const $ = el => document.querySelector(el)
+    <div class="button-container">
+        <button 
+            id="admin-btn" 
+            class="admin-btn"
+            <% if (role !== 'admin') { %>disabled<% } %>
+            onclick="window.location.href='/admin'"
+        >
+            Panel de Administración
+        </button>
+        <button 
+            id="user-btn" 
+            class="user-btn"
+            <% if (role !== 'admin' && role !== 'user') { %>disabled<% } %>
+            onclick="location.href='/user';"
+        >
+            Panel de Usuario
+        </button>
+    </div>
 
-        const volverButton = $('#session')
-
-        volverButton?.addEventListener('click', e => {
-            e.preventDefault()
-            fetch('/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(res => {
-                console.log(res)
-                window.location.href = '/'
-            })
-        })
-    </script>
-<!--
+    <button 
+        style="margin-top: 30px; background-color: #dc3545;" 
+        onclick="window.location.href='/'"
+    >
+        Volver
+    </button>
 </body>
-
-</html> -->
+</html>

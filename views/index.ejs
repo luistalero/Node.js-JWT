@@ -102,7 +102,7 @@
         .form-container:first-of-type button:hover {
             background-color: #218838;
         }
-    </style>
+    </style> 
 </head>
 <body>
     <div class="container">
@@ -211,7 +211,11 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({
+                    username: $('#register-username').value,
+                    password: $('#register-password').value,
+                    role: $('#register-role').value 
+                })
             })
             .then(res => {
                 console.log(res)

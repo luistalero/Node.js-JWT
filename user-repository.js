@@ -15,6 +15,10 @@ const User = Schema('User', {
 
 export class UserRepository {
   static async create ({ username, password, role = 'user' }) {
+    const validRoles = ['user', 'admin']
+    if (!validRoles.includes(role)) {
+      throw new Error(`Invalid role. Valid roles are: ${validRoles.join(', ')}`)
+    }
     Validations.username(username)
     Validations.password(password)
 

@@ -96,6 +96,14 @@ app.get('/admin', authorizeRole('admin'), (req, res) => {
   res.render('admin', { user, message: 'Welcome to the admin page!' })
 })
 
+app.get('/user', (req, res) => {
+  const { user } = req.session
+  if (!user) {
+    return res.redirect('/')
+  }
+  res.render('user', { user })
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })
