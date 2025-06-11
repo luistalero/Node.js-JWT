@@ -109,6 +109,32 @@ export class UserRepository {
     return user
   }
 
+  static async findByResetToken (token) {
+    if (typeof token !== 'string' || !token.startsWith('eyJ')) {
+      throw new Error('Invalid token format')
+    }
+
+    const user = User.findOne({ resetToken: token })
+    if (!user) return null
+
+    return user
+  }
+
+  static async updatePassword (userId, newPassword) {
+    Validations.password(newPassword)
+
+    const user = User.findOne({ _id: userId })
+    if (!user) {
+      throw new Error('User not found')
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, SALT_ROUNDS)
+    user.password = hashedPassword
+    user.save()
+
+    return user
+  }
+
   static async clearResetToken (userId) {
     const user = await User.findOne({ _id: userId })
 
