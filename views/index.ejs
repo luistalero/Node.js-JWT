@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,6 +21,7 @@
             justify-content: center;
             align-items: center;
         }
+
         .container {
             flex-direction: column;
             align-items: center;
@@ -34,7 +36,7 @@
             width: 300px;
         }
 
-        form h2{
+        form h2 {
             margin-bottom: 20px;
             font-size: 24px;
             text-align: center;
@@ -45,6 +47,7 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
+
         input {
             width: 100%;
             padding: 10px;
@@ -52,6 +55,7 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         button {
             width: 100%;
             padding: 10px;
@@ -62,9 +66,11 @@
             cursor: pointer;
             font-size: 16px;
         }
+
         button:hover {
             background-color: #218838;
         }
+
         .form-container h2 {
             color: #333;
         }
@@ -102,60 +108,66 @@
         .form-container:first-of-type button:hover {
             background-color: #218838;
         }
-    </style> 
+    </style>
 </head>
+
 <body>
     <div class="container">
-        <% if (typeof username !== 'undefined') { %>
+        <% if (typeof username !=='undefined' ) { %>
             <div class="form-container">
                 <h2>Hola <%= username %>!</h2>
                 <p>Esats en el panel de administración</p>
                 <button id="close-session">Cerrar sesión</button>
             </div>
-        <% } %>
-        <% if (typeof username === 'undefined') { %>
-            <div class="form-container">
-            <h2>Bienvenido</h2>
-            <p>¿Qué deseas hacer?</p>
-            <button onclick="showLogin()">Iniciar Sesión</button>
-            <button onclick="showRegister()">Registrarse</button>
-            </div>
-
-            <div class="form-container">
-                <form id="login-form">
-                    <h2>Login</h2>
-                    <label for="login-username">Username</label>
-                    <input type="text" name="username" id="login-username" required>
-                    <label for="login-password">Password</label>
-                    <input type="password" name="password" id="login-password" required>
-
-                    <button type="submit">Login</button>
-                    <span>&nbsp;</span>
-                </form>
-            </div>
-
-            <div class="form-container">
-                <form id="register-form">
-                    <h2>Register</h2>
-                    <label for="register-username">Username</label>
-                    <input type="text" name="username" id="register-username" required>
-
-                    <label for="register-password">Password</label>
-                    <input type="password" name="password" id="register-password" required>
-
-                    <label for="register-confirm-password">Confirm Password</label>
-                    <input type="password" name="confirm-password" id="register-confirm-password" required>
-                    <label for="register-role">Role</label>
-                    <select name="role" id="register-role" required>
-                        <option value="user">User</option>
-                        <option value="admin">Admin</option>
-                    </select>
-
-                    <button type="submit">Register</button>
-                    <span>&nbsp;</span>
-                </form>
-            </div>
             <% } %>
+                <% if (typeof username==='undefined' ) { %>
+                    <div class="form-container">
+                        <h2>Bienvenido</h2>
+                        <p>¿Qué deseas hacer?</p>
+                        <button onclick="showLogin()">Iniciar Sesión</button>
+                        <button onclick="showRegister()">Registrarse</button>
+                    </div>
+
+                    <div class="form-container">
+                        <form id="login-form">
+                            <h2>Login</h2>
+                            <label for="login-username">Username</label>
+                            <input type="text" name="username" id="login-username" required>
+                            <label for="login-password">Password</label>
+                            <input type="password" name="password" id="login-password" required>
+
+                            <button type="submit">Login</button>
+                            <button id="forgot-password-btn" class="user-btn" type="button"
+                                onclick="location.href='/forgot-password'">Forgot Password</button>
+                            <span>&nbsp;</span>
+                        </form>
+                    </div>
+
+                    <div class="form-container">
+                        <form id="register-form">
+                            <h2>Register</h2>
+                            <label for="login-username">Email</label>
+                            <input type="email" name="email" id="register-email" required>
+
+                            <label for="register-username">Username</label>
+                            <input type="text" name="username" id="register-username" required>
+
+                            <label for="register-password">Password</label>
+                            <input type="password" name="password" id="register-password" required>
+
+                            <label for="register-confirm-password">Confirm Password</label>
+                            <input type="password" name="confirm-password" id="register-confirm-password" required>
+                            <label for="register-role">Role</label>
+                            <select name="role" id="register-role" required>
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+
+                            <button type="submit">Register</button>
+                            <span>&nbsp;</span>
+                        </form>
+                    </div>
+                    <% } %>
     </div>
 
     <script>
@@ -181,22 +193,23 @@
                 },
                 body: JSON.stringify({ username, password })
             })
-              .then(res => {
-                if (res.ok) {
-                    loginSpan.innerText = 'Sesión iniciada.... Entrando...'
-                    loginSpan.style.color = 'green'
-                    setTimeout(() => {
-                        window.location.href = '/protected'
-                    }, 2000)
-                } else {
-                    loginSpan.innerText = 'Error al iniciar sesión'
-                    loginSpan.style.color = 'red'
-                }
-            })
+                .then(res => {
+                    if (res.ok) {
+                        loginSpan.innerText = 'Sesión iniciada.... Entrando...'
+                        loginSpan.style.color = 'green'
+                        setTimeout(() => {
+                            window.location.href = '/protected'
+                        }, 2000)
+                    } else {
+                        loginSpan.innerText = 'Error al iniciar sesión'
+                        loginSpan.style.color = 'red'
+                    }
+                })
         })
 
         registerForm?.addEventListener('submit', e => {
             e.preventDefault()
+            const email = $('#register-email').value
             const username = $('#register-username').value
             const password = $('#register-password').value
             const confirmPassword = $('#register-confirm-password').value
@@ -212,24 +225,25 @@
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
+                    email: $('#register-email').value,
                     username: $('#register-username').value,
                     password: $('#register-password').value,
-                    role: $('#register-role').value 
+                    role: $('#register-role').value
                 })
             })
-            .then(res => {
-                console.log(res)
-                if (res.ok) {
-                    registerSpan.innerText = 'Usuario registrado correctamente'
-                    registerSpan.style.color = 'green'
-                    setTimeout(() => {
-                        window.location.href = '/'
-                    }, 2000)
-                } else {
-                    registerSpan.innerText = 'Error al registrar el usuario'
-                    registerSpan.style.color = 'red'
-                }
-            })
+                .then(res => {
+                    console.log(res)
+                    if (res.ok) {
+                        registerSpan.innerText = 'Usuario registrado correctamente'
+                        registerSpan.style.color = 'green'
+                        setTimeout(() => {
+                            window.location.href = '/'
+                        }, 2000)
+                    } else {
+                        registerSpan.innerText = 'Error al registrar el usuario'
+                        registerSpan.style.color = 'red'
+                    }
+                })
         })
 
         logoutButton?.addEventListener('click', e => {
@@ -240,10 +254,10 @@
                     'Content-Type': 'application/json'
                 }
             })
-            .then(res => {
-                console.log(res)
-                window.location.href = '/'
-            })
+                .then(res => {
+                    console.log(res)
+                    window.location.href = '/'
+                })
         })
 
         function showLogin() {
@@ -256,9 +270,10 @@
             document.querySelector('#login-form').parentElement.style.display = 'none';
         }
 
-            // Hide forms initially
+        // Hide forms initially
         document.querySelector('#login-form').parentElement.style.display = 'none';
         document.querySelector('#register-form').parentElement.style.display = 'none';
     </script>
 </body>
+
 </html>

@@ -6,15 +6,17 @@ import bcrypt from 'bcrypt'
 import { SALT_ROUNDS } from './config.js'
 const { Schema } = new DBLocal({ path: './db' })
 
-const User = Schema('User', {
+export const User = Schema('User', {
   _id: { type: String, required: true },
+  email: { type: String, required: true },
   username: { type: String, required: true },
   password: { type: String, required: true },
-  role: { type: String, require: true }
+  role: { type: String, require: true },
+  resetToken: { type: String }
 })
 
 export class UserRepository {
-  static async create ({ username, password, role = 'user' }) {
+  static async create ({ email, username, password, role = 'user' }) {
     const validRoles = ['user', 'admin']
     if (!validRoles.includes(role)) {
       throw new Error(`Invalid role. Valid roles are: ${validRoles.join(', ')}`)
@@ -26,12 +28,17 @@ export class UserRepository {
     if (user) {
       throw new Error('User already exists')
     }
+    const correo = User.findOne({ email })
+    if (correo) {
+      throw new Error('User already exists')
+    }
 
     const id = crypto.randomUUID()
     const hasedPassword = await bcrypt.hash(password, SALT_ROUNDS)
 
     User.create({
       _id: id,
+      email,
       username,
       password: hasedPassword,
       role
@@ -68,6 +75,48 @@ export class UserRepository {
     if (!user) throw new Error('User not found')
 
     user.role = newRole
+    user.save()
+
+    return user
+  }
+
+  static async findByEmail (email) {
+    if (typeof email !== 'string' || !email.includes('@')) {
+      throw new Error('Invalid email format')
+    }
+
+    const normalizedEmail = email.trim().toLocaleLowerCase()
+    const user = User.findOne({ email: normalizedEmail })
+    if (!user) return null
+
+    return user
+  }
+
+  static async saveResetToken (email, token) {
+    const user = await User.findOne({ email })
+
+    if (!user) {
+      throw new Error('There is no user with this email')
+    }
+
+    if (typeof token !== 'string' || !token.startsWith('eyJ')) {
+      throw new Error('Token JWT inválido')
+    }
+
+    user.resetToken = token
+    await user.save()
+
+    return user
+  }
+
+  static async clearResetToken (userId) {
+    const user = await User.findOne({ _id: userId })
+
+    if (!user) {
+      throw new Error('Usuario no encontrado')
+    }
+
+    user.resetToken = null
     user.save()
 
     return user

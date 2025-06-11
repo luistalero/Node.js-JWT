@@ -2,9 +2,17 @@ import express from 'express'
 import jwt from 'jsonwebtoken'
 import cookieParser from 'cookie-parser'
 import { PORT, SECRET_JWT_KEY } from './config.js'
+import rateLimit from 'express-rate-limit'
 import { UserRepository } from './user-repository.js'
+import { sendPasswordResetEmail } from './email-services.js'
 
 const app = express()
+
+const passwordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 3,
+  message: 'Demasiados intentos, por favor intenta más tarde'
+})
 
 app.set('view engine', 'ejs')
 
@@ -53,7 +61,7 @@ app.post('/login', async (req, res) => {
 })
 
 app.post('/register', async (req, res) => {
-  const { username, password, role = 'user' } = req.body
+  const { email, username, password, role = 'user' } = req.body
 
   // Validar que el rol sea válido
   const validRoles = ['user', 'admin']
@@ -70,7 +78,7 @@ app.post('/register', async (req, res) => {
   }
 
   try {
-    const id = await UserRepository.create({ username, password, role })
+    const id = await UserRepository.create({ email, username, password, role })
     res.send({ id, message: 'User registered successfully' })
   } catch (error) {
     res.status(400).send(error.message)
@@ -104,6 +112,14 @@ app.get('/user', (req, res) => {
   res.render('user', { user })
 })
 
+app.get('/forgot-password', (req, res) => {
+  res.render('forgot-password')
+})
+
+app.get('/reset-password', (req, res) => {
+  res.render('reset-password')
+})
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`)
 })
@@ -117,6 +133,103 @@ app.post('users/:id/role', authorizeRole('admin'), async (req, res) => {
     res.json(updateUser)
   } catch (error) {
     res.status(400).send(error.message)
+  }
+})
+
+app.post('/forgot-password', passwordResetLimiter, async (req, res) => {
+  const { email } = req.body
+
+  if (!email || typeof email !== 'string' || !email.includes('@')) {
+    return res.status(400).json({
+      success: false,
+      error: 'Formato de email inválido'
+    })
+  }
+
+  try {
+    const normalizedEmail = email.trim().toLowerCase()
+    const user = await UserRepository.findByEmail(normalizedEmail)
+
+    const responseMessage = 'Si este correo está registrado, recibirás un enlace para restablecer tu contraseña'
+
+    if (!user) {
+      console.log('Usuario encontrado. Generando token...')
+
+      const resetToken = jwt.sign(
+        {
+          userId: user._id,
+          action: 'password-reset',
+          email: user.email,
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 3600 // 1 hora
+        },
+        SECRET_JWT_KEY,
+        { algorithm: 'HS256' }
+      )
+
+      await UserRepository.saveResetToken(user.email, resetToken)
+
+      await sendPasswordResetEmail({
+        email: user.email,
+        username: user.username,
+        resetLink: `http://localhost:3000/reset-password?token=${resetToken}`
+      })
+
+      console.log(`Token de reset generado para ${user.email}`)
+      console.log('Token generado:', resetToken)
+      console.log('Token decodificado:', jwt.decode(resetToken))
+    }
+    return res.json({
+      success: true,
+      message: responseMessage
+    })
+  } catch (error) {
+    console.error('Error en /forgot-password:', error)
+    return res.status(500).json({
+      success: false,
+      error: 'Error al procesar la solicitud',
+      ...(process.env.NODE_ENV === 'development' && {
+        details: error.message
+      })
+    })
+  }
+})
+
+app.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body
+  console.log('Token recibido:', token)
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: 'Token y nueva contraseña son requeridos' })
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_JWT_KEY)
+    console.log('Token decodificado:', decoded)
+
+    if (decoded.action !== 'password-reset') {
+      return res.status(400).json({ error: 'Token inválido' })
+    }
+
+    const user = await UserRepository.findByResetToken(token)
+    if (!user) {
+      return res.status(400).json({ error: 'Token inválido o expirado' })
+    }
+
+    await UserRepository.updatePassword(decoded.userId, newPassword)
+
+    await UserRepository.clearResetToken(decoded.userId)
+
+    return res.json({ success: true, message: 'Contraseña actualizada exitosamente' })
+  } catch (error) {
+    console.error('Error al verificar token:', error.message)
+    console.error('Error al resetear contraseña:', error)
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(400).json({ error: 'Token inválido o expirado' })
+    }
+
+    return res.status(500).json({ error: 'Error al procesar la solicitud' })
   }
 })
 
